@@ -1,0 +1,9 @@
+﻿namespace NetMQServer
+{
+    public class InvocationResult
+    {
+        public Invocation Invocation { get; set; }
+
+        public object Result { get; set; }
+    }
+}
