@@ -4,7 +4,7 @@ A minimal RPC implementation for C# projects.
 
 Key characteristics:
 - 0MQ based communication.
-- JSON based data serialization
+- JSON based data serialization.
 - Using dynamic proxies to generate client-to-service bindings.
 - Emphasis on simplicity over performance.
 
@@ -15,12 +15,12 @@ Create interface and implementation for your RPC service.
 ```
 public interface IMathService
 {
-    int AddNumbers(int a, int b);
+    int AddNumbers(long a, long b);
 }
 
 public class MathService : IMathService
 {
-    public int AddNumbers(int a, int b)
+    public int AddNumbers(long a, long b)
     {
         return a + b;
     }
