@@ -9,6 +9,11 @@ namespace Minx.zRPC.NET
 {
     public class ZRpcServer : IDisposable
     {
+        private static readonly JsonSerializerSettings SerializerSettings = new()
+        {
+            TypeNameHandling = TypeNameHandling.All
+        };
+
         private Dictionary<string, object> services = new Dictionary<string, object>();
         private NetMQPoller poller;
         private ResponseSocket socket;
@@ -31,17 +36,11 @@ namespace Minx.zRPC.NET
         {
             var invocationJson = e.Socket.ReceiveFrameString();
 
-            var invocation = JsonConvert.DeserializeObject<Invocation>(invocationJson, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            });
+            var invocation = JsonConvert.DeserializeObject<Invocation>(invocationJson, SerializerSettings);
 
             var result = Invoke(invocation);
 
-            var resultJson = JsonConvert.SerializeObject(result, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            });
+            var resultJson = JsonConvert.SerializeObject(result, SerializerSettings);
 
             e.Socket.SendFrame(resultJson);
         }

@@ -7,6 +7,11 @@ namespace Minx.zRPC.NET
 {
     public class InvocationInterceptor<T> : IInterceptor
     {
+        private static readonly JsonSerializerSettings SerializerSettings = new()
+        {
+            TypeNameHandling = TypeNameHandling.All
+        };
+
         private RequestSocket socket;
 
         public InvocationInterceptor(RequestSocket socket)
@@ -23,19 +28,13 @@ namespace Minx.zRPC.NET
                 Arguments = invocation.Arguments
             };
 
-            var requestJson = JsonConvert.SerializeObject(procedureInvocation, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            });
+            var requestJson = JsonConvert.SerializeObject(procedureInvocation, SerializerSettings);
 
             socket.SendFrame(requestJson);
 
             var responseJson = socket.ReceiveFrameString();
 
-            var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.All
-            });
+            var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, SerializerSettings);
 
             invocation.ReturnValue = result.Result;
         }
