@@ -9,7 +9,7 @@ namespace Minx.zRPC.NET
 {
     public class ZRpcServer : IDisposable
     {
-        private static readonly JsonSerializerSettings SerializerSettings = new()
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.All
         };
