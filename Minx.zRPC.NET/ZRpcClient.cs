@@ -17,7 +17,7 @@ namespace Minx.zRPC.NET
 
         public T GetService<T>() where T : class
         {
-            var interceptor = new InvocationInterceptor<T>(socket);
+            var interceptor = new InvocationInterceptor(typeof(T), socket);
 
             return (T)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
                 typeof(T),

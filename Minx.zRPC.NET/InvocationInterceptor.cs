@@ -2,20 +2,23 @@
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
+using System;
 
 namespace Minx.zRPC.NET
 {
-    public class InvocationInterceptor<T> : IInterceptor
+    public class InvocationInterceptor : IInterceptor
     {
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.All
         };
 
-        private RequestSocket socket;
+        private readonly Type interceptedType;
+        private readonly RequestSocket socket;
 
-        public InvocationInterceptor(RequestSocket socket)
+        public InvocationInterceptor(Type interceptedType, RequestSocket socket)
         {
+            this.interceptedType = interceptedType;
             this.socket = socket;
         }
 
@@ -23,7 +26,7 @@ namespace Minx.zRPC.NET
         {
             var procedureInvocation = new Invocation
             {
-                TypeName = typeof(T).FullName,
+                TypeName = interceptedType.FullName,
                 MethodName = invocation.Method.Name,
                 Arguments = invocation.Arguments
             };
