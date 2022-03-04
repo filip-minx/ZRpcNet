@@ -11,7 +11,11 @@ namespace Minx.zRPC.NET
     {
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
-            TypeNameHandling = TypeNameHandling.All
+            TypeNameHandling = TypeNameHandling.All,
+            Converters = new List<JsonConverter>()
+            {
+                new Int32Converter()
+            }
         };
 
         private Dictionary<string, object> services = new Dictionary<string, object>();
