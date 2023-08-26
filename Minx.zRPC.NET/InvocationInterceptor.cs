@@ -19,12 +19,12 @@ namespace Minx.zRPC.NET
         };
 
         private readonly Type interceptedType;
-        private readonly RequestSocket socket;
+        private readonly string requestConnectionString;
 
-        public InvocationInterceptor(Type interceptedType, RequestSocket socket)
+        public InvocationInterceptor(Type interceptedType, string requestConnectionString)
         {
             this.interceptedType = interceptedType;
-            this.socket = socket;
+            this.requestConnectionString = requestConnectionString;
         }
 
         public void Intercept(IInvocation invocation)
@@ -38,13 +38,16 @@ namespace Minx.zRPC.NET
 
             var requestJson = JsonConvert.SerializeObject(procedureInvocation, SerializerSettings);
 
-            socket.SendFrame(requestJson);
+            using (var requestSocket = new RequestSocket(requestConnectionString))
+            {
+                requestSocket.SendFrame(requestJson);
 
-            var responseJson = socket.ReceiveFrameString();
+                var responseJson = requestSocket.ReceiveFrameString();
 
-            var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, SerializerSettings);
+                var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, SerializerSettings);
 
-            invocation.ReturnValue = result.Result;
+                invocation.ReturnValue = result.Result;
+            }
         }
     }
 }

@@ -1,33 +1,69 @@
 ﻿using Castle.DynamicProxy;
+using NetMQ;
 using NetMQ.Sockets;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace Minx.zRPC.NET
 {
     public class ZRpcClient : IDisposable
     {
+        private Dictionary<Type, object> ProxyInstances = new Dictionary<Type, object>();
+
+
         private static ProxyGenerator ProxyGenerator = new ProxyGenerator();
 
-        private RequestSocket socket;
+        private string requestConnectionString;
+        private string eventConnectionString;
 
-        public ZRpcClient(string address, int port)
+        private SubscriberSocket subscriberSocket;
+        private NetMQPoller poller;
+
+        public ZRpcClient(string address, int requestPort, int eventPort)
         {
-            socket = new RequestSocket($">tcp://{address}:{port}");
+            requestConnectionString = $">tcp://{address}:{requestPort}";
+            eventConnectionString = $">tcp://{address}:{eventPort}";
+
+            subscriberSocket = new SubscriberSocket(eventConnectionString);
+            subscriberSocket.SubscribeToAnyTopic();
+            subscriberSocket.ReceiveReady += HandleEvent;
+
+            poller = new NetMQPoller()
+            {
+                subscriberSocket
+            };
+
+            poller.RunAsync();
         }
 
         public T GetService<T>() where T : class
         {
-            var interceptor = new InvocationInterceptor(typeof(T), socket);
+            var interceptor = new InvocationInterceptor(typeof(T), requestConnectionString);
 
-            return (T)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
+            var proxy = (T)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
                 typeof(T),
                 interceptor);
+
+            ProxyInstances.Add(typeof(T), proxy);
+
+            return proxy;
+        }
+
+        private void HandleEvent(object sender, NetMQSocketEventArgs e)
+        {
+            var eventJson = e.Socket.ReceiveFrameString();
+            Console.WriteLine(eventJson);
         }
 
         public void Dispose()
         {
-            socket?.Dispose();
-            socket = null;
+            subscriberSocket?.Dispose();
+            subscriberSocket = null;
+
+            poller?.Dispose();
+            poller = null;
         }
     }
 }

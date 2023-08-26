@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NetMQ;
 using NetMQ.Sockets;
@@ -19,18 +20,22 @@ namespace Minx.zRPC.NET
         };
 
         private Dictionary<string, object> services = new Dictionary<string, object>();
+
         private NetMQPoller poller;
-        private ResponseSocket socket;
 
-        public ZRpcServer(string address, int port)
+        private ResponseSocket responseSocket;
+        private PublisherSocket publisherSocket;
+
+        public ZRpcServer(string address, int responsePort, int eventPort)
         {
-            socket = new ResponseSocket($"@tcp://{address}:{port}");
+            responseSocket = new ResponseSocket($"@tcp://{address}:{responsePort}");
+            publisherSocket = new PublisherSocket($"@tcp://{address}:{eventPort}");
 
-            socket.ReceiveReady += HandleProcedureInvocationRequest;
+            responseSocket.ReceiveReady += HandleProcedureInvocationRequest;
 
             poller = new NetMQPoller()
             {
-                socket
+                responseSocket
             };
 
             poller.RunAsync();
@@ -39,7 +44,7 @@ namespace Minx.zRPC.NET
         private void HandleProcedureInvocationRequest(object sender, NetMQSocketEventArgs e)
         {
             var invocationJson = e.Socket.ReceiveFrameString();
-
+            
             var invocation = JsonConvert.DeserializeObject<Invocation>(invocationJson, SerializerSettings);
 
             var result = Invoke(invocation);
@@ -53,6 +58,8 @@ namespace Minx.zRPC.NET
             where TImplementation : class, TInterface
         {
             services.Add(typeof(TInterface).FullName, implementation);
+
+            EventInterceptor.Create(implementation, SendEvent);
         }
 
         public InvocationResult Invoke(Invocation invocation)
@@ -76,13 +83,22 @@ namespace Minx.zRPC.NET
             };
         }
 
+        private void SendEvent(object[] args)
+        {
+            var eventArgsJson = JsonConvert.SerializeObject(args, SerializerSettings);
+
+            var st = new StackTrace();
+
+            publisherSocket.SendFrame(eventArgsJson);
+        }
+
         public void Dispose()
         {
             poller?.Dispose();
             poller = null;
 
-            socket?.Dispose();
-            socket = null;
+            responseSocket?.Dispose();
+            responseSocket = null;
         }
     }
 }
