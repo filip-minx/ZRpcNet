@@ -2,7 +2,7 @@
 {
     public class InvocationResult
     {
-        public Invocation Invocation { get; set; }
+        public InvocationMessage Invocation { get; set; }
 
         public object Result { get; set; }
     }

@@ -4,13 +4,14 @@ using NetMQ.Sockets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Minx.zRPC.NET
 {
     public class ZRpcClient : IDisposable
     {
-        private Dictionary<Type, object> ProxyInstances = new Dictionary<Type, object>();
+        private readonly Dictionary<string, object> targetInstances = new Dictionary<string, object>();
 
 
         private static ProxyGenerator ProxyGenerator = new ProxyGenerator();
@@ -28,7 +29,7 @@ namespace Minx.zRPC.NET
 
             subscriberSocket = new SubscriberSocket(eventConnectionString);
             subscriberSocket.SubscribeToAnyTopic();
-            subscriberSocket.ReceiveReady += HandleEvent;
+            subscriberSocket.ReceiveReady += HandleReceivedEvent;
 
             poller = new NetMQPoller()
             {
@@ -38,23 +39,37 @@ namespace Minx.zRPC.NET
             poller.RunAsync();
         }
 
-        public T GetService<T>() where T : class
+        public T GetService<T, TImpl>() where T : class
         {
             var interceptor = new InvocationInterceptor(typeof(T), requestConnectionString);
 
-            var proxy = (T)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
-                typeof(T),
-                interceptor);
+            var target = FormatterServices.GetUninitializedObject(typeof(TImpl));
 
-            ProxyInstances.Add(typeof(T), proxy);
+            var proxy = (T)ProxyGenerator.CreateInterfaceProxyWithTarget(typeof(T), target, interceptor);
+
+            targetInstances.Add(typeof(T).FullName, target);
 
             return proxy;
         }
 
-        private void HandleEvent(object sender, NetMQSocketEventArgs e)
+        private void HandleReceivedEvent(object sender, NetMQSocketEventArgs e)
         {
             var eventJson = e.Socket.ReceiveFrameString();
-            Console.WriteLine(eventJson);
+
+            var eventData = JsonConvert.DeserializeObject<EventMessage>(eventJson, MessageSerializationSettings.Instance);
+
+            var target = targetInstances[eventData.TypeName];
+
+            InvokeEventOnTarget(target, eventData.EventName, eventData.EventArgs);
+        }
+
+        private static void InvokeEventOnTarget(object source, string eventName, object eventArgs)
+        {
+            ((Delegate)source
+                .GetType()
+                .GetField(eventName, BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(source))
+                .DynamicInvoke(source, eventArgs);
         }
 
         public void Dispose()

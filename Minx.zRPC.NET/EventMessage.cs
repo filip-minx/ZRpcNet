@@ -1,6 +1,6 @@
 ﻿namespace Minx.zRPC.NET
 {
-    class Event
+    class EventMessage
     {
         public string TypeName { get; set; }
 

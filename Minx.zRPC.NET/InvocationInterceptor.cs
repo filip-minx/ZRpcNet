@@ -3,21 +3,11 @@ using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace Minx.zRPC.NET
 {
     public class InvocationInterceptor : IInterceptor
     {
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.All,
-            Converters = new List<JsonConverter>()
-            {
-                new Int32Converter()
-            }
-        };
-
         private readonly Type interceptedType;
         private readonly string requestConnectionString;
 
@@ -26,17 +16,26 @@ namespace Minx.zRPC.NET
             this.interceptedType = interceptedType;
             this.requestConnectionString = requestConnectionString;
         }
-
+        private bool IsEventAccessor(System.Reflection.MethodInfo method)
+        {
+            return method.IsSpecialName && (method.Name.StartsWith("add_") || method.Name.StartsWith("remove_"));
+        }
         public void Intercept(IInvocation invocation)
         {
-            var procedureInvocation = new Invocation
+            if (IsEventAccessor(invocation.Method))
+            {
+                invocation.Proceed();
+                return;
+            }
+
+            var procedureInvocation = new InvocationMessage
             {
                 TypeName = interceptedType.FullName,
                 MethodName = invocation.Method.Name,
                 Arguments = invocation.Arguments
             };
 
-            var requestJson = JsonConvert.SerializeObject(procedureInvocation, SerializerSettings);
+            var requestJson = JsonConvert.SerializeObject(procedureInvocation, MessageSerializationSettings.Instance);
 
             using (var requestSocket = new RequestSocket(requestConnectionString))
             {
@@ -44,7 +43,7 @@ namespace Minx.zRPC.NET
 
                 var responseJson = requestSocket.ReceiveFrameString();
 
-                var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, SerializerSettings);
+                var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, MessageSerializationSettings.Instance);
 
                 invocation.ReturnValue = result.Result;
             }

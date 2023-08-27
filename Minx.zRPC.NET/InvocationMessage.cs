@@ -1,6 +1,6 @@
 ﻿namespace Minx.zRPC.NET
 {
-    public class Invocation
+    public class InvocationMessage
     {
         public string TypeName { get; set; }
 

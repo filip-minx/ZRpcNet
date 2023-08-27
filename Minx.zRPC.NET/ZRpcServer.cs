@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -10,16 +10,7 @@ namespace Minx.zRPC.NET
 {
     public class ZRpcServer : IDisposable
     {
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.All,
-            Converters = new List<JsonConverter>()
-            {
-                new Int32Converter()
-            }
-        };
-
-        private Dictionary<string, object> services = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> services = new Dictionary<string, object>();
 
         private NetMQPoller poller;
 
@@ -41,28 +32,28 @@ namespace Minx.zRPC.NET
             poller.RunAsync();
         }
 
-        private void HandleProcedureInvocationRequest(object sender, NetMQSocketEventArgs e)
-        {
-            var invocationJson = e.Socket.ReceiveFrameString();
-            
-            var invocation = JsonConvert.DeserializeObject<Invocation>(invocationJson, SerializerSettings);
-
-            var result = Invoke(invocation);
-
-            var resultJson = JsonConvert.SerializeObject(result, SerializerSettings);
-
-            e.Socket.SendFrame(resultJson);
-        }
-
         public void RegisterService<TInterface, TImplementation>(TImplementation implementation)
             where TImplementation : class, TInterface
         {
             services.Add(typeof(TInterface).FullName, implementation);
 
-            EventInterceptor.Create(implementation, SendEvent);
+            EventInterceptor.CreateForAllEvents(typeof(TInterface), implementation, SendEvent);
         }
 
-        public InvocationResult Invoke(Invocation invocation)
+        private void HandleProcedureInvocationRequest(object sender, NetMQSocketEventArgs e)
+        {
+            var invocationJson = e.Socket.ReceiveFrameString();
+            
+            var invocation = JsonConvert.DeserializeObject<InvocationMessage>(invocationJson, MessageSerializationSettings.Instance);
+
+            var result = Invoke(invocation);
+
+            var resultJson = JsonConvert.SerializeObject(result, MessageSerializationSettings.Instance);
+
+            e.Socket.SendFrame(resultJson);
+        }
+
+        private InvocationResult Invoke(InvocationMessage invocation)
         {
             var service = services[invocation.TypeName];
 
@@ -83,11 +74,16 @@ namespace Minx.zRPC.NET
             };
         }
 
-        private void SendEvent(object[] args)
+        private void SendEvent(Type interceptedType, EventInfo eventInfo, object[] args)
         {
-            var eventArgsJson = JsonConvert.SerializeObject(args, SerializerSettings);
+            var eventData = new EventMessage()
+            {
+                EventArgs = args[1],
+                EventName = eventInfo.Name,
+                TypeName = interceptedType.FullName
+            };
 
-            var st = new StackTrace();
+            var eventArgsJson = JsonConvert.SerializeObject(eventData, MessageSerializationSettings.Instance);
 
             publisherSocket.SendFrame(eventArgsJson);
         }

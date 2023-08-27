@@ -1,33 +1,54 @@
 ﻿using System;
 using System.Reflection.Emit;
 using System.Reflection;
+using System.Linq;
 
 namespace Minx.zRPC.NET
 {
     public class EventInterceptor
     {
-        private readonly Action<object[]> handler;
+        private readonly Action<Type, EventInfo, object[]> handler;
+        private readonly Type interceptedType;
+        private readonly EventInfo eventInfo;
 
-        private EventInterceptor(Action<object[]> handler)
+        private EventInterceptor(Action<Type, EventInfo, object[]> handler, Type interceptedType, EventInfo eventInfo)
         {
             this.handler = handler;
+            this.interceptedType = interceptedType;
+            this.eventInfo = eventInfo;
         }
 
-        public static EventInterceptor Create(object targetInstance, Action<object[]> handler)
+        public static EventInterceptor Create(Type interceptedType, object targetInstance, EventInfo eventInfo, Action<Type, EventInfo, object[]> handler)
         {
-            var interceptor = new EventInterceptor(handler);
+            var interceptor = new EventInterceptor(handler, interceptedType, eventInfo);
 
-            AttachDynamicHandlersToAllEvents(targetInstance, interceptor);
+            var dynamicHandler = CreateDynamicHandler(eventInfo, interceptor);
+
+            if (dynamicHandler != null)
+            {
+                eventInfo.AddEventHandler(targetInstance, dynamicHandler);
+            }
 
             return interceptor;
         }
 
-        private static Delegate CreateDynamicHandler(EventInfo eventInfo, EventInterceptor logger)
+        public static EventInterceptor[] CreateForAllEvents(Type interceptedType, object targetInstance, Action<Type, EventInfo, object[]> handler)
+        {
+            return targetInstance
+                .GetType()
+                .GetEvents()
+                .Select(eventInfo => Create(interceptedType, targetInstance, eventInfo, handler))
+                .ToArray();
+        }
+
+        private static Delegate CreateDynamicHandler(EventInfo eventInfo, EventInterceptor interceptor)
         {
             var eventParams = eventInfo.EventHandlerType.GetMethod("Invoke").GetParameters();
 
-            Type[] handlerParameters = new Type[eventParams.Length + 1];
+            var handlerParameters = new Type[eventParams.Length + 1];
+
             handlerParameters[0] = typeof(EventInterceptor);
+
             for (int i = 0; i < eventParams.Length; i++)
             {
                 handlerParameters[i + 1] = eventParams[i].ParameterType;
@@ -37,53 +58,35 @@ namespace Minx.zRPC.NET
 
             ILGenerator ilGen = method.GetILGenerator();
 
-            // Load the logger reference onto the stack.
             ilGen.Emit(OpCodes.Ldarg_0);
-
-            // Create an object array.
             ilGen.Emit(OpCodes.Ldc_I4, eventParams.Length);
             ilGen.Emit(OpCodes.Newarr, typeof(object));
 
-            // Fill the array with the event's parameters.
             for (int i = 0; i < eventParams.Length; i++)
             {
                 ilGen.Emit(OpCodes.Dup);
                 ilGen.Emit(OpCodes.Ldc_I4, i);
                 ilGen.Emit(OpCodes.Ldarg, i + 1);
+
                 if (eventParams[i].ParameterType.IsValueType)
                 {
                     ilGen.Emit(OpCodes.Box, eventParams[i].ParameterType);
                 }
+
                 ilGen.Emit(OpCodes.Stelem_Ref);
             }
 
-            // Call the helper method.
-            ilGen.Emit(OpCodes.Call, typeof(EventInterceptor).GetMethod("DynamicHandlerHelper",
+            ilGen.Emit(OpCodes.Call, typeof(EventInterceptor).GetMethod("InternalInvokeHandler",
                 BindingFlags.Static | BindingFlags.NonPublic));
 
             ilGen.Emit(OpCodes.Ret);
 
-            return method.CreateDelegate(eventInfo.EventHandlerType, logger);
+            return method.CreateDelegate(eventInfo.EventHandlerType, interceptor);
         }
 
-        private static void AttachDynamicHandlersToAllEvents(object instance, EventInterceptor interceptor)
+        internal static void InternalInvokeHandler(EventInterceptor interceptor, params object[] args)
         {
-            foreach (EventInfo eventInfo in instance.GetType().GetEvents())
-            {
-                var dynamicHandler = CreateDynamicHandler(eventInfo, interceptor);
-
-                if (dynamicHandler != null)
-                {
-                    eventInfo.AddEventHandler(instance, dynamicHandler);
-                }
-            }
-        }
-
-        private static void DynamicHandlerHelper(EventInterceptor loggerInstance, params object[] args)
-        {
-            loggerInstance.handler?.Invoke(args);
-            // You can now use the eventName within this method for additional logic or logging.
-            Console.WriteLine(loggerInstance);
+            interceptor.handler?.Invoke(interceptor.interceptedType, interceptor.eventInfo, args);
         }
     }
 }
