@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace Minx.ZRpcNet
 {
@@ -38,14 +37,14 @@ namespace Minx.ZRpcNet
             poller.RunAsync();
         }
 
-        public T GetService<T, TImpl>() where T : class
+        public T GetService<T>() where T : class
         {
             var interceptor = new InvocationInterceptor(typeof(T), requestConnectionString);
 
-            var target = FormatterServices.GetUninitializedObject(typeof(TImpl));
+            var target = DummyTargetActivator.CreateInstance<T>();
 
             var proxy = (T)ProxyGenerator.CreateInterfaceProxyWithTarget(typeof(T), target, interceptor);
-
+            
             targetInstances.Add(typeof(T).FullName, target);
 
             return proxy;
