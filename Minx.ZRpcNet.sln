@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minx.zRPC.NET", "Minx.zRPC.NET\Minx.zRPC.NET.csproj", "{21750FC6-A34E-43B2-9929-D2BBB4DD92DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minx.ZRpcNet", "Minx.ZRpcNet\Minx.ZRpcNet.csproj", "{21750FC6-A34E-43B2-9929-D2BBB4DD92DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,7 +4,7 @@ using NetMQ.Sockets;
 using Newtonsoft.Json;
 using System;
 
-namespace Minx.zRPC.NET
+namespace Minx.ZRpcNet
 {
     public class InvocationInterceptor : IInterceptor
     {

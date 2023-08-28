@@ -3,7 +3,7 @@ using System.Reflection.Emit;
 using System.Reflection;
 using System.Linq;
 
-namespace Minx.zRPC.NET
+namespace Minx.ZRpcNet
 {
     public class EventInterceptor
     {

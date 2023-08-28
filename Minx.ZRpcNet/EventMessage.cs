@@ -1,4 +1,4 @@
-﻿namespace Minx.zRPC.NET
+﻿namespace Minx.ZRpcNet
 {
     class EventMessage
     {

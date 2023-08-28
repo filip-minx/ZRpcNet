@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Minx.zRPC.NET
+namespace Minx.ZRpcNet
 {
     /// <summary>
     /// To address issues with automatic Int64 deserialization -- see https://stackoverflow.com/a/9444519/1037948

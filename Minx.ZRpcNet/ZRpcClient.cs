@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Minx.zRPC.NET
+namespace Minx.ZRpcNet
 {
     public class ZRpcClient : IDisposable
     {

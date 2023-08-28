@@ -6,7 +6,7 @@ using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
 
-namespace Minx.zRPC.NET
+namespace Minx.ZRpcNet
 {
     public class ZRpcServer : IDisposable
     {

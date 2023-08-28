@@ -1,4 +1,4 @@
-# zRPC.NET 
+# ZRpcNet
 
 A minimal RPC implementation for C# projects.
 
