@@ -11,27 +11,31 @@ Key characteristics:
 # Example usage:
 ## Server implementation
 
-Create interface and implementation for your RPC service.
+Create an interface and implementation for your RPC service.
 ```
-public interface IMathService
+public interface IWeatherService
 {
-    int AddNumbers(long a, long b);
+    void SetTemperature(int degrees);
+  
+    event EventHandler<int> TemperatureChanged;
 }
 
-public class MathService : IMathService
+public class WeatherService : IWeatherService
 {
-    public int AddNumbers(long a, long b)
+    public event EventHandler<int> TemperatureChanged;
+
+    public void SetTemperature(int degrees)
     {
-        return a + b;
+        TemperatureChanged?.Invoke(this, degrees);
     }
 }
 ```
 
 Start the server and register a service.
 ```
-using (var server = new ZRpcServer("localhost", 5556))
+using (var server = new ZRpcServer("localhost"))
 {
-    server.RegisterService<IMathService, MathService>(new MathService());
+    server.RegisterService<IWeatherService, WeatherService>(new WeatherService());
 
     Console.WriteLine("Service is running... Press any key to exit.");
     Console.ReadKey();
@@ -41,13 +45,16 @@ using (var server = new ZRpcServer("localhost", 5556))
 ## Client implementation
 
 ```
-using (var client = new ZRpcClient("localhost", 5556))
+using (var client = new ZRpcClient("localhost"))
 {
-    var service = client.GetService<IMathService>();
+    var weatherService = client.GetService<IWeatherService, WeatherService>();
 
-    var added = service.AddNumbers(5, 10);
+    weatherService.TemperatureChanged += (s, degrees) =>
+    {
+        Console.WriteLine($"Temperature changed to {degrees}°C.");
+    };
 
-    Console.WriteLine(added); // 15
+    weatherService.SetTemperature(38);
 }
 ```
 
