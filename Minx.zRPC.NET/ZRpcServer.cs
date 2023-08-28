@@ -10,6 +10,9 @@ namespace Minx.zRPC.NET
 {
     public class ZRpcServer : IDisposable
     {
+        public const int DefaultRequestPort = 28555;
+        public const int DefaultEventPort = 28556;
+
         private readonly Dictionary<string, object> services = new Dictionary<string, object>();
 
         private NetMQPoller poller;
@@ -17,7 +20,7 @@ namespace Minx.zRPC.NET
         private ResponseSocket responseSocket;
         private PublisherSocket publisherSocket;
 
-        public ZRpcServer(string address, int responsePort, int eventPort)
+        public ZRpcServer(string address, int responsePort = DefaultRequestPort, int eventPort = DefaultEventPort)
         {
             responseSocket = new ResponseSocket($"@tcp://{address}:{responsePort}");
             publisherSocket = new PublisherSocket($"@tcp://{address}:{eventPort}");

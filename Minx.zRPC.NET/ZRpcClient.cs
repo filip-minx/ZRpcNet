@@ -13,7 +13,6 @@ namespace Minx.zRPC.NET
     {
         private readonly Dictionary<string, object> targetInstances = new Dictionary<string, object>();
 
-
         private static ProxyGenerator ProxyGenerator = new ProxyGenerator();
 
         private string requestConnectionString;
@@ -22,7 +21,7 @@ namespace Minx.zRPC.NET
         private SubscriberSocket subscriberSocket;
         private NetMQPoller poller;
 
-        public ZRpcClient(string address, int requestPort, int eventPort)
+        public ZRpcClient(string address, int requestPort = ZRpcServer.DefaultRequestPort, int eventPort = ZRpcServer.DefaultEventPort)
         {
             requestConnectionString = $">tcp://{address}:{requestPort}";
             eventConnectionString = $">tcp://{address}:{eventPort}";
