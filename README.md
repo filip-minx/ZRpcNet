@@ -47,7 +47,7 @@ using (var server = new ZRpcServer("localhost"))
 ```
 using (var client = new ZRpcClient("localhost"))
 {
-    var weatherService = client.GetService<IWeatherService, WeatherService>();
+    var weatherService = client.GetService<IWeatherService>();
 
     weatherService.TemperatureChanged += (s, degrees) =>
     {
