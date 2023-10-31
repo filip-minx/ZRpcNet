@@ -3,10 +3,9 @@
 A minimal RPC implementation for C# projects.
 
 Key characteristics:
-- 0MQ based communication.
-- JSON based data serialization.
-- Using dynamic proxies to generate client-to-service bindings.
-- Emphasis on simplicity over performance.
+- Full duplex, brokerless, 0MQ communication.
+- Dynamic generation of client-to-service bindings from C# interfaces.
+- Emphasis on simplicity over performance. Zero setup needed.
 
 # Example usage:
 ## Server implementation
