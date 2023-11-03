@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;net48</TargetFrameworks>
+    <TargetFrameworks>net7.0;net48</TargetFrameworks>
+    <PackageId>Minx.ZRpcNet</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Filip Minx</Authors>
+    <Company>Minx</Company>
   </PropertyGroup>
 
   <ItemGroup>
