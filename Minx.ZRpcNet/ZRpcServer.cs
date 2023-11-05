@@ -68,13 +68,24 @@ namespace Minx.ZRpcNet
                 .GetType()
                 .GetMethod(invocation.MethodName, argumentsTypes);
 
-            var result = methodInfo.Invoke(service, invocation.Arguments);
-
-            return new InvocationResult()
+            try
             {
-                Result = result,
-                Invocation = invocation
-            };
+                var result = methodInfo.Invoke(service, invocation.Arguments);
+
+                return new InvocationResult()
+                {
+                    Result = result,
+                    Invocation = invocation,
+                };
+            }
+            catch (TargetInvocationException ex)
+            {
+                return new InvocationResult()
+                {
+                    Invocation = invocation,
+                    Exception = new ZRpcInvocationException($"Invocation of '{invocation.TypeName}.{invocation.MethodName}' has failed.", ex.InnerException)
+                };
+            }
         }
 
         private void SendEvent(Type interceptedType, EventInfo eventInfo, object[] args)
