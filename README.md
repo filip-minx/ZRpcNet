@@ -1,4 +1,5 @@
 # ZRpcNet
+[![NuGet](https://img.shields.io/nuget/v/Minx.ZRpcNet.svg)](https://www.nuget.org/packages/Minx.ZRpcNet/)
 
 A minimal RPC implementation for C# projects.
 
