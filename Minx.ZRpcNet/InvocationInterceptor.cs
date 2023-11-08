@@ -20,6 +20,7 @@ namespace Minx.ZRpcNet
         {
             return method.IsSpecialName && (method.Name.StartsWith("add_") || method.Name.StartsWith("remove_"));
         }
+
         public void Intercept(IInvocation invocation)
         {
             if (IsEventAccessor(invocation.Method))
@@ -44,6 +45,11 @@ namespace Minx.ZRpcNet
                 var responseJson = requestSocket.ReceiveFrameString();
 
                 var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, MessageSerializationSettings.Instance);
+                
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
 
                 invocation.ReturnValue = result.Result;
             }
