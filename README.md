@@ -12,7 +12,7 @@ Key characteristics:
 ## Server implementation
 
 Create an interface and implementation for your RPC service.
-```
+```csharp
 public interface IWeatherService
 {
     void SetTemperature(int degrees);
@@ -32,7 +32,7 @@ public class WeatherService : IWeatherService
 ```
 
 Start the server and register a service.
-```
+```csharp
 using (var server = new ZRpcServer("localhost"))
 {
     server.RegisterService<IWeatherService, WeatherService>(new WeatherService());
@@ -44,7 +44,7 @@ using (var server = new ZRpcServer("localhost"))
 
 ## Client implementation
 
-```
+```csharp
 using (var client = new ZRpcClient("localhost"))
 {
     var weatherService = client.GetService<IWeatherService>();
