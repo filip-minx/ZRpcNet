@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -46,8 +47,8 @@ namespace Minx.ZRpcNet
         private void HandleProcedureInvocationRequest(object sender, NetMQSocketEventArgs e)
         {
             var invocationJson = e.Socket.ReceiveFrameString();
-            
-            var invocation = JsonConvert.DeserializeObject<InvocationMessage>(invocationJson, MessageSerializationSettings.Instance);
+
+            var invocation = InvocationSerializer.DeserializeInvocation(invocationJson);
 
             var result = Invoke(invocation);
 
@@ -74,15 +75,13 @@ namespace Minx.ZRpcNet
 
                 return new InvocationResult()
                 {
-                    Result = result,
-                    Invocation = invocation,
+                    Result = result
                 };
             }
             catch (TargetInvocationException ex)
             {
                 return new InvocationResult()
                 {
-                    Invocation = invocation,
                     Exception = new ZRpcInvocationException($"Invocation of '{invocation.TypeName}.{invocation.MethodName}' has failed.", ex.InnerException)
                 };
             }
