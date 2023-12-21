@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Minx.ZRpcNet
+namespace Minx.ZRpcNet.Serialization
 {
     public static class MessageSerializationSettings
     {

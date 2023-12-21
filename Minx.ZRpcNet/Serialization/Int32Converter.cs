@@ -33,18 +33,14 @@ namespace Minx.ZRpcNet.Serialization
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                object convertedValue;
-
                 try
                 {
-                    convertedValue = Convert.ToInt32(reader.Value);
+                    return Convert.ToInt32(reader.Value);
                 }
                 catch
                 {
-                    convertedValue = Convert.ToInt64(reader.Value);
+                    return Convert.ToInt64(reader.Value);
                 }
-
-                return convertedValue;
             }
             else
             {

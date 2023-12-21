@@ -1,4 +1,5 @@
 ﻿using Castle.DynamicProxy;
+using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -36,7 +37,7 @@ namespace Minx.ZRpcNet
                 Arguments = invocation.Arguments
             };
 
-            var requestJson = JsonConvert.SerializeObject(procedureInvocation, MessageSerializationSettings.Instance);
+            var requestJson = InvocationSerializer.SerializeInvocation(procedureInvocation);
 
             using (var requestSocket = new RequestSocket(requestConnectionString))
             {
