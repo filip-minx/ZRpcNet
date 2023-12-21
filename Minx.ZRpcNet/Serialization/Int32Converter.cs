@@ -31,9 +31,21 @@ namespace Minx.ZRpcNet.Serialization
         /// </returns>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return reader.TokenType == JsonToken.Integer
-                ? Convert.ToInt32(reader.Value)     // convert to Int32 instead of Int64
-                : serializer.Deserialize(reader);   // default to regular deserialization
+            if (reader.TokenType == JsonToken.Integer)
+            {
+                try
+                {
+                    return Convert.ToInt32(reader.Value);
+                }
+                catch
+                {
+                    return Convert.ToInt64(reader.Value);
+                }
+            }
+            else
+            {
+                return serializer.Deserialize(reader);
+            }
         }
 
         /// <summary>
