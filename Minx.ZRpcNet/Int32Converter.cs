@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Minx.ZRpcNet
+namespace Minx.ZRpcNet.Serialization
 {
     /// <summary>
     /// To address issues with automatic Int64 deserialization -- see https://stackoverflow.com/a/9444519/1037948
@@ -31,9 +31,25 @@ namespace Minx.ZRpcNet
         /// </returns>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return (reader.TokenType == JsonToken.Integer)
-                ? Convert.ToInt32(reader.Value)     // convert to Int32 instead of Int64
-                : serializer.Deserialize(reader);   // default to regular deserialization
+            if (reader.TokenType == JsonToken.Integer)
+            {
+                object convertedValue;
+
+                try
+                {
+                    convertedValue = Convert.ToInt32(reader.Value);
+                }
+                catch
+                {
+                    convertedValue = Convert.ToInt64(reader.Value);
+                }
+
+                return convertedValue;
+            }
+            else
+            {
+                return serializer.Deserialize(reader);
+            }
         }
 
         /// <summary>
@@ -45,8 +61,8 @@ namespace Minx.ZRpcNet
         /// </returns>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(Int32) ||
-                    objectType == typeof(Int64) ||
+            return objectType == typeof(int) ||
+                    objectType == typeof(long) ||
                     // need this last one in case we "weren't given" the type
                     // and this will be accounted for by `ReadJson` checking tokentype
                     objectType == typeof(object);
