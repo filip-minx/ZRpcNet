@@ -55,7 +55,7 @@ namespace Minx.ZRpcNet
         {
             var eventJson = e.Socket.ReceiveFrameString();
 
-            var eventData = JsonConvert.DeserializeObject<EventMessage>(eventJson, MessageSerializationSettings.Instance);
+            var eventData = MessageSerializer.DeserializeMessage<EventMessage>(eventJson);
 
             var target = targetInstances[eventData.TypeName];
 
@@ -68,7 +68,7 @@ namespace Minx.ZRpcNet
                 .GetType()
                 .GetField(eventName, BindingFlags.Instance | BindingFlags.NonPublic)
                 .GetValue(source))
-                .DynamicInvoke(source, eventArgs);
+                ?.DynamicInvoke(source, eventArgs);
         }
 
         public void Dispose()

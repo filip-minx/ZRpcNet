@@ -48,11 +48,11 @@ namespace Minx.ZRpcNet
         {
             var invocationJson = e.Socket.ReceiveFrameString();
 
-            var invocation = InvocationSerializer.DeserializeInvocation(invocationJson);
+            var invocation = MessageSerializer.DeserializeMessage<InvocationMessage>(invocationJson);
 
             var result = Invoke(invocation);
 
-            var resultJson = JsonConvert.SerializeObject(result, MessageSerializationSettings.Instance);
+            var resultJson = MessageSerializer.SerializeMessage(result);
 
             e.Socket.SendFrame(resultJson);
         }
@@ -61,8 +61,8 @@ namespace Minx.ZRpcNet
         {
             var service = services[invocation.TypeName];
 
-            var argumentsTypes = invocation.Arguments
-                .Select(a => a.GetType())
+            var argumentsTypes = invocation.ArgumentsTypeNames
+                .Select(Type.GetType)
                 .ToArray();
 
             var methodInfo = service
@@ -96,7 +96,7 @@ namespace Minx.ZRpcNet
                 TypeName = interceptedType.FullName
             };
 
-            var eventArgsJson = JsonConvert.SerializeObject(eventData, MessageSerializationSettings.Instance);
+            var eventArgsJson = MessageSerializer.SerializeMessage(eventData);
 
             publisherSocket.SendFrame(eventArgsJson);
         }

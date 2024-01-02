@@ -1,4 +1,6 @@
-﻿namespace Minx.ZRpcNet
+﻿using System;
+
+namespace Minx.ZRpcNet
 {
     public class InvocationMessage
     {
@@ -7,5 +9,7 @@
         public string MethodName { get; set; }
 
         public object[] Arguments { get; set; }
+
+        public string[] ArgumentsTypeNames { get; set; }
     }
 }

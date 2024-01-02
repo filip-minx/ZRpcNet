@@ -2,8 +2,9 @@
 using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
-using Newtonsoft.Json;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Minx.ZRpcNet
 {
@@ -17,7 +18,7 @@ namespace Minx.ZRpcNet
             this.interceptedType = interceptedType;
             this.requestConnectionString = requestConnectionString;
         }
-        private bool IsEventAccessor(System.Reflection.MethodInfo method)
+        private bool IsEventAccessor(MethodInfo method)
         {
             return method.IsSpecialName && (method.Name.StartsWith("add_") || method.Name.StartsWith("remove_"));
         }
@@ -29,15 +30,16 @@ namespace Minx.ZRpcNet
                 invocation.Proceed();
                 return;
             }
-
+            
             var procedureInvocation = new InvocationMessage
             {
                 TypeName = interceptedType.FullName,
                 MethodName = invocation.Method.Name,
-                Arguments = invocation.Arguments
+                Arguments = invocation.Arguments,
+                ArgumentsTypeNames = GetMethodParametersTypeNames(invocation.Method)
             };
 
-            var requestJson = InvocationSerializer.SerializeInvocation(procedureInvocation);
+            var requestJson = MessageSerializer.SerializeMessage(procedureInvocation);
 
             using (var requestSocket = new RequestSocket(requestConnectionString))
             {
@@ -45,8 +47,8 @@ namespace Minx.ZRpcNet
 
                 var responseJson = requestSocket.ReceiveFrameString();
 
-                var result = JsonConvert.DeserializeObject<InvocationResult>(responseJson, MessageSerializationSettings.Instance);
-                
+                var result = MessageSerializer.DeserializeMessage<InvocationResult>(responseJson);
+
                 if (result.Exception != null)
                 {
                     throw result.Exception;
@@ -54,6 +56,11 @@ namespace Minx.ZRpcNet
 
                 invocation.ReturnValue = result.Result;
             }
+        }
+
+        private static string[] GetMethodParametersTypeNames(MethodInfo method)
+        {
+            return method.GetParameters().Select(p => p.ParameterType.AssemblyQualifiedName).ToArray();
         }
     }
 }
