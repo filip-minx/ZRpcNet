@@ -34,8 +34,7 @@ namespace Minx.ZRpcNet
 
         public static EventInterceptor[] CreateForAllEvents(Type interceptedType, object targetInstance, Action<Type, EventInfo, object[]> handler)
         {
-            return targetInstance
-                .GetType()
+            return interceptedType
                 .GetEvents()
                 .Select(eventInfo => Create(interceptedType, targetInstance, eventInfo, handler))
                 .ToArray();
