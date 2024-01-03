@@ -9,7 +9,7 @@ namespace Minx.ZRpcNet
     public static class DummyTargetActivator
     {
         private static AssemblyName AssemblyName { get; } = new AssemblyName($"DynamicAssembly");
-        
+
         private static AssemblyBuilder AssemblyBuilder;
         private static ModuleBuilder ModuleBuilder;
 

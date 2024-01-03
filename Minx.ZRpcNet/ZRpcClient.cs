@@ -2,7 +2,6 @@
 using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -45,7 +44,7 @@ namespace Minx.ZRpcNet
             var target = DummyTargetActivator.CreateInstance<T>();
 
             var proxy = (T)ProxyGenerator.CreateInterfaceProxyWithTarget(typeof(T), target, interceptor);
-            
+
             targetInstances.Add(typeof(T).FullName, target);
 
             return proxy;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Minx.ZRpcNet
+﻿namespace Minx.ZRpcNet
 {
     public class InvocationMessage
     {

@@ -30,7 +30,7 @@ namespace Minx.ZRpcNet
                 invocation.Proceed();
                 return;
             }
-            
+
             var procedureInvocation = new InvocationMessage
             {
                 TypeName = interceptedType.FullName,

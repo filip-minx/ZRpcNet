@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Minx.ZRpcNet.Serialization;
+using NetMQ;
+using NetMQ.Sockets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Minx.ZRpcNet.Serialization;
-using NetMQ;
-using NetMQ.Sockets;
-using Newtonsoft.Json;
 
 namespace Minx.ZRpcNet
 {
