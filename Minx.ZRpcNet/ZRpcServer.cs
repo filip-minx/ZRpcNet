@@ -74,7 +74,8 @@ namespace Minx.ZRpcNet
 
                 return new InvocationResult()
                 {
-                    Result = result
+                    Result = result,
+                    ResultTypeName = methodInfo.ReturnType.AssemblyQualifiedName
                 };
             }
             catch (TargetInvocationException ex)

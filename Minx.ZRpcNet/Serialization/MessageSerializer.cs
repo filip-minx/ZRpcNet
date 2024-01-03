@@ -16,6 +16,11 @@ namespace Minx.ZRpcNet.Serialization
                 return (T)(object)InvocationMessageSerializer.DeserializeInvocation(json);
             }
 
+            if (typeof(T) == typeof(InvocationResult))
+            {
+                return (T)(object)InvocationMessageSerializer.DeserializeInvocationResult(json);
+            }
+
             return JsonConvert.DeserializeObject<T>(json, MessageSerializationSettings.Instance);
         }
     }

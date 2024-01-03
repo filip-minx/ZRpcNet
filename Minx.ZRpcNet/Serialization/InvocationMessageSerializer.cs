@@ -17,6 +17,24 @@ namespace Minx.ZRpcNet.Serialization
             return invocation;
         }
 
+        public static InvocationResult DeserializeInvocationResult(string json)
+        {
+            var result = JsonConvert.DeserializeObject<InvocationResult>(json, MessageSerializationSettings.Instance);
+
+            var resultType = Type.GetType(result.ResultTypeName);
+
+            // Newtonsoft JSON serializes all value types without their specific .NET types.
+            // Convert the result to the correct type if it is a value type.
+            // Except for void since the result is always null in that case.
+
+            if (resultType.IsValueType && resultType != typeof(void))
+            {
+                result.Result = Convert.ChangeType(result.Result, Type.GetType(result.ResultTypeName));
+            }
+
+            return result;
+        }
+
         private static object[] ConvertArgumentTypes(object[] arguments, Type[] targetTypes)
         {
             if (arguments?.Length == 0)
