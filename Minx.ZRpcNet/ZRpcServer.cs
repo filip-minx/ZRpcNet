@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Minx.ZRpcNet
 {
-    public class ZRpcServer : IDisposable
+    public class ZRpcServer : IZRpcServer, IDisposable
     {
         public const int DefaultRequestPort = 28555;
         public const int DefaultEventPort = 28556;

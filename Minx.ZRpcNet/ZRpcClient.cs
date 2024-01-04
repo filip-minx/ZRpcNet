@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Minx.ZRpcNet
 {
-    public class ZRpcClient : IDisposable
+    public class ZRpcClient : IZRpcClient, IDisposable
     {
         private readonly Dictionary<string, object> targetInstances = new Dictionary<string, object>();
 
