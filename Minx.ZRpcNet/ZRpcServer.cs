@@ -58,7 +58,13 @@ namespace Minx.ZRpcNet
 
         private InvocationResult Invoke(InvocationMessage invocation)
         {
-            var service = services[invocation.TypeName];
+            if (!services.TryGetValue(invocation.TypeName, out object service))
+            {
+                return new InvocationResult()
+                {
+                    Exception = new ZRpcServiceNotRegisteredException($"Service '{invocation.TypeName}' is not registered.")
+                };
+            }
 
             var argumentsTypes = invocation.ArgumentsTypeNames
                 .Select(Type.GetType)

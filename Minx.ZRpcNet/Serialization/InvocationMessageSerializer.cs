@@ -21,11 +21,17 @@ namespace Minx.ZRpcNet.Serialization
         {
             var result = JsonConvert.DeserializeObject<InvocationResult>(json, MessageSerializationSettings.Instance);
 
-            var resultType = Type.GetType(result.ResultTypeName);
+            // ResultTypeName is null when the invocation results in an exception.
+            if (result.ResultTypeName == null)
+            {
+                return result;
+            }
 
             // Newtonsoft JSON serializes all value types without their specific .NET types.
             // Convert the result to the correct type if it is a value type.
             // Except for void since the result is always null in that case.
+
+            var resultType = Type.GetType(result.ResultTypeName);
 
             if (resultType.IsValueType && resultType != typeof(void))
             {
