@@ -12,11 +12,13 @@ namespace Minx.ZRpcNet
     {
         private readonly Type interceptedType;
         private readonly string requestConnectionString;
+        private readonly ZRpcClientOptions options;
 
-        public InvocationInterceptor(Type interceptedType, string requestConnectionString)
+        public InvocationInterceptor(Type interceptedType, string requestConnectionString, ZRpcClientOptions options)
         {
             this.interceptedType = interceptedType;
             this.requestConnectionString = requestConnectionString;
+            this.options = options;
         }
         private bool IsEventAccessor(MethodInfo method)
         {
@@ -45,7 +47,10 @@ namespace Minx.ZRpcNet
             {
                 requestSocket.SendFrame(requestJson);
 
-                var responseJson = requestSocket.ReceiveFrameString();
+                if (!requestSocket.TryReceiveFrameString(options.Timeout, out var responseJson))
+                {
+                    throw new TimeoutException();
+                }
 
                 var result = MessageSerializer.DeserializeMessage<InvocationResult>(responseJson);
 

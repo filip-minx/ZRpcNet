@@ -20,6 +20,8 @@ namespace Minx.ZRpcNet
         private SubscriberSocket subscriberSocket;
         private NetMQPoller poller;
 
+        public ZRpcClientOptions Options { get; set; } = ZRpcClientOptions.Default;
+
         public ZRpcClient(string address, int requestPort = ZRpcServer.DefaultRequestPort, int eventPort = ZRpcServer.DefaultEventPort)
         {
             requestConnectionString = $">tcp://{address}:{requestPort}";
@@ -39,7 +41,7 @@ namespace Minx.ZRpcNet
 
         public T GetService<T>() where T : class
         {
-            var interceptor = new InvocationInterceptor(typeof(T), requestConnectionString);
+            var interceptor = new InvocationInterceptor(typeof(T), requestConnectionString, Options);
 
             var target = DummyTargetActivator.CreateInstance<T>();
 
