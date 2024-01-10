@@ -114,6 +114,9 @@ namespace Minx.ZRpcNet
 
             responseSocket?.Dispose();
             responseSocket = null;
+
+            publisherSocket?.Dispose();
+            publisherSocket = null;
         }
     }
 }
