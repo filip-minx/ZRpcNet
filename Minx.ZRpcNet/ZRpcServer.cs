@@ -1,4 +1,5 @@
 ﻿using Minx.ZRpcNet.Serialization;
+using Minx.ZRpcNet.Services;
 using NetMQ;
 using NetMQ.Sockets;
 using System;
@@ -32,6 +33,8 @@ namespace Minx.ZRpcNet
                 responseSocket
             };
 
+            RegisterStandardServices();
+
             poller.RunAsync();
         }
 
@@ -41,6 +44,11 @@ namespace Minx.ZRpcNet
             services.Add(typeof(TInterface).FullName, implementation);
 
             EventInterceptor.CreateForAllEvents(typeof(TInterface), implementation, SendEvent);
+        }
+
+        private void RegisterStandardServices()
+        {
+            RegisterService<IConnectivityService, ConnectivityService>(new ConnectivityService());
         }
 
         private void HandleProcedureInvocationRequest(object sender, NetMQSocketEventArgs e)
