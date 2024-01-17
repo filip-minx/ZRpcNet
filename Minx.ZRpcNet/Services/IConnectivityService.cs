@@ -1,12 +1,15 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("ZRpcDynamicAssembly")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace Minx.ZRpcNet.Services
 {
-    internal interface IConnectivityService
+    public interface IConnectivityService
     {
-        void Heartbeat();
+        event EventHandler<ConnectionChangedEventArgs> ClientConnectionChanged;
+
+        void Heartbeat(string clientGuid);
     }
 }

@@ -11,6 +11,7 @@ namespace Minx.ZRpcNet.StateMonitoring
         private DateTime lastSuccessfulHeartbeat;
 
         private IConnectivityService connectivityService;
+        private string monitorId;
 
         public ConnectivityState State { get; private set; }
 
@@ -18,6 +19,8 @@ namespace Minx.ZRpcNet.StateMonitoring
 
         public ConnectivityStateMonitor(ZRpcClient zRpcClient, TimeSpan timeoutThreshold)
         {
+            monitorId = Guid.NewGuid().ToString();
+
             State = ConnectivityState.Disconnected;
 
             connectivityService = zRpcClient.GetService<IConnectivityService>();
@@ -34,7 +37,7 @@ namespace Minx.ZRpcNet.StateMonitoring
         {
             try
             {
-                connectivityService.Heartbeat();
+                connectivityService.Heartbeat(monitorId);
 
                 lastSuccessfulHeartbeat = DateTime.Now;
 
