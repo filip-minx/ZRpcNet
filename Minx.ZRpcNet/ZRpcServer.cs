@@ -1,5 +1,5 @@
 ﻿using Minx.ZRpcNet.Serialization;
-using Minx.ZRpcNet.Services;
+using Minx.ZRpcNet.Connectivity;
 using NetMQ;
 using NetMQ.Sockets;
 using System;

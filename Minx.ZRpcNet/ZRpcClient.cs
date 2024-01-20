@@ -1,4 +1,5 @@
 ﻿using Castle.DynamicProxy;
+using Minx.ZRpcNet.Connectivity;
 using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;

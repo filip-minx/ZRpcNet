@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Minx.ZRpcNet.StateMonitoring
+namespace Minx.ZRpcNet
 {
     public interface IStateMonitor<T>
     {

@@ -1,8 +1,7 @@
-﻿using Minx.ZRpcNet.Services;
-using System;
+﻿using System;
 using System.Timers;
 
-namespace Minx.ZRpcNet.StateMonitoring
+namespace Minx.ZRpcNet.Connectivity
 {
     public class ConnectivityStateMonitor : IStateMonitor<ConnectivityState>, IDisposable
     {

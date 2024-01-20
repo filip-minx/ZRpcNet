@@ -1,4 +1,4 @@
-﻿namespace Minx.ZRpcNet.Services
+﻿namespace Minx.ZRpcNet.Connectivity
 {
     public enum ConnectivityState
     {

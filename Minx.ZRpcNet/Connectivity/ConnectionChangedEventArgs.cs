@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Minx.ZRpcNet.Services
+namespace Minx.ZRpcNet.Connectivity
 {
     public class ConnectionChangedEventArgs : EventArgs
     {
