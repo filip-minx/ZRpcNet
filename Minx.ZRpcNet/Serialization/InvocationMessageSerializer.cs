@@ -12,7 +12,7 @@ namespace Minx.ZRpcNet.Serialization
 
             invocation.Arguments = ConvertArgumentTypes(
                 invocation.Arguments,
-                invocation.ArgumentsTypeNames.Select(typeName => Type.GetType(typeName)).ToArray());
+                invocation.ArgumentsTypeNames.Select(TypeResolver.GetTypeInAllAssemblies).ToArray());
 
             return invocation;
         }
@@ -31,11 +31,11 @@ namespace Minx.ZRpcNet.Serialization
             // Convert the result to the correct type if it is a value type.
             // Except for void since the result is always null in that case.
 
-            var resultType = Type.GetType(result.ResultTypeName);
+            var resultType = TypeResolver.GetTypeInAllAssemblies(result.ResultTypeName);
 
             if (resultType.IsValueType && resultType != typeof(void))
             {
-                result.Result = Convert.ChangeType(result.Result, Type.GetType(result.ResultTypeName));
+                result.Result = Convert.ChangeType(result.Result, resultType);
             }
 
             return result;

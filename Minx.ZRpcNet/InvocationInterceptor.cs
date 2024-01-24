@@ -65,7 +65,7 @@ namespace Minx.ZRpcNet
 
         private static string[] GetMethodParametersTypeNames(MethodInfo method)
         {
-            return method.GetParameters().Select(p => p.ParameterType.AssemblyQualifiedName).ToArray();
+            return method.GetParameters().Select(p => p.ParameterType.FullName).ToArray();
         }
     }
 }

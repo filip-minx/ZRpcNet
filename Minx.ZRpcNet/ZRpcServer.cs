@@ -68,7 +68,7 @@ namespace Minx.ZRpcNet
             }
 
             var argumentsTypes = invocation.ArgumentsTypeNames
-                .Select(Type.GetType)
+                .Select(TypeResolver.GetTypeInAllAssemblies)
                 .ToArray();
 
             var methodInfo = service
@@ -82,7 +82,7 @@ namespace Minx.ZRpcNet
                 return new InvocationResult()
                 {
                     Result = result,
-                    ResultTypeName = methodInfo.ReturnType.AssemblyQualifiedName
+                    ResultTypeName = methodInfo.ReturnType.FullName
                 };
             }
             catch (TargetInvocationException ex)
