@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Minx.ZRpcNet.Serialization
 {
-    internal static class TypeResolver
+    public static class TypeResolver
     {
         private static readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
 
-        internal static Type GetTypeInAllAssemblies(string typeName)
+        public static Type GetTypeInAllAssemblies(string typeName, string hintAssemblyName)
         {
             if (string.IsNullOrEmpty(typeName))
                 throw new ArgumentException("Type name cannot be null or empty.", nameof(typeName));
@@ -16,19 +15,31 @@ namespace Minx.ZRpcNet.Serialization
             if (typeCache.TryGetValue(typeName, out Type cachedType))
                 return cachedType;
 
-            var type = Type.GetType(typeName);
+            Type type = null;
+
+            if (hintAssemblyName != null)
+            {
+                var tn = typeName + ", " + hintAssemblyName;
+                type = Type.GetType(tn);
+            }
 
             if (type == null)
             {
-                type = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.IsDynamic)
-                    .SelectMany(a => a.GetTypes())
-                    .FirstOrDefault(t => t.FullName.Equals(typeName, StringComparison.Ordinal));
+                type = Type.GetType(typeName);
             }
 
             typeCache[typeName] = type;
 
+            if (type == null)
+            {
+                throw new InvalidOperationException($"Could not resolve type. TypeName: {typeName}, AssemblyName: {hintAssemblyName}");
+            }
             return type;
+        }
+
+        public static Type GetTypeInAllAssemblies(TypeLocator typeLocator)
+        {
+            return GetTypeInAllAssemblies(typeLocator.TypeName, typeLocator.AssemblyName);
         }
     }
 }

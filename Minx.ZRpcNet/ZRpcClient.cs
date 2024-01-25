@@ -1,5 +1,4 @@
 ﻿using Castle.DynamicProxy;
-using Minx.ZRpcNet.Connectivity;
 using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
@@ -59,7 +58,7 @@ namespace Minx.ZRpcNet
 
             var eventData = MessageSerializer.DeserializeMessage<EventMessage>(eventJson);
 
-            var target = targetInstances[eventData.TypeName];
+            var target = targetInstances[eventData.Type.TypeName];
 
             InvokeEventOnTarget(target, eventData.EventName, eventData.EventArgs);
         }

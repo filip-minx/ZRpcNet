@@ -1,8 +1,10 @@
-﻿namespace Minx.ZRpcNet
+﻿using Minx.ZRpcNet.Serialization;
+
+namespace Minx.ZRpcNet
 {
     class EventMessage
     {
-        public string TypeName { get; set; }
+        public TypeLocator Type { get; set; }
 
         public string EventName { get; set; }
 

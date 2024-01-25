@@ -2,11 +2,13 @@
 
 namespace Minx.ZRpcNet.Serialization
 {
+
     public static class MessageSerializationSettings
     {
         public static readonly JsonSerializerSettings Instance = new JsonSerializerSettings()
         {
-            TypeNameHandling = TypeNameHandling.All
+            TypeNameHandling = TypeNameHandling.All,
+            SerializationBinder = new CustomSerializationBinder()
         };
     }
 }

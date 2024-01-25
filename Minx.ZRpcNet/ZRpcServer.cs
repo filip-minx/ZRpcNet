@@ -1,5 +1,4 @@
 ﻿using Minx.ZRpcNet.Serialization;
-using Minx.ZRpcNet.Connectivity;
 using NetMQ;
 using NetMQ.Sockets;
 using System;
@@ -59,15 +58,15 @@ namespace Minx.ZRpcNet
 
         private InvocationResult Invoke(InvocationMessage invocation)
         {
-            if (!services.TryGetValue(invocation.TypeName, out object service))
+            if (!services.TryGetValue(invocation.Type.TypeName, out object service))
             {
                 return new InvocationResult()
                 {
-                    Exception = new ZRpcServiceNotRegisteredException($"Service '{invocation.TypeName}' is not registered.")
+                    Exception = new ZRpcServiceNotRegisteredException($"Service '{invocation.Type}' is not registered.")
                 };
             }
 
-            var argumentsTypes = invocation.ArgumentsTypeNames
+            var argumentsTypes = invocation.ArgumentsTypes
                 .Select(TypeResolver.GetTypeInAllAssemblies)
                 .ToArray();
 
@@ -82,14 +81,14 @@ namespace Minx.ZRpcNet
                 return new InvocationResult()
                 {
                     Result = result,
-                    ResultTypeName = methodInfo.ReturnType.FullName
+                    ResultType = methodInfo.ReturnType.GetTypeLocator()
                 };
             }
             catch (TargetInvocationException ex)
             {
                 return new InvocationResult()
                 {
-                    Exception = new ZRpcInvocationException($"Invocation of '{invocation.TypeName}.{invocation.MethodName}' has failed.", ex.InnerException)
+                    Exception = new ZRpcInvocationException($"Invocation of '{invocation.Type}.{invocation.MethodName}' has failed.", ex.InnerException)
                 };
             }
         }
@@ -100,7 +99,7 @@ namespace Minx.ZRpcNet
             {
                 EventArgs = args[1],
                 EventName = eventInfo.Name,
-                TypeName = interceptedType.FullName
+                Type = interceptedType.GetTypeLocator()
             };
 
             var eventArgsJson = MessageSerializer.SerializeMessage(eventData);

@@ -35,10 +35,10 @@ namespace Minx.ZRpcNet
 
             var procedureInvocation = new InvocationMessage
             {
-                TypeName = interceptedType.FullName,
+                Type = interceptedType.GetTypeLocator(),
                 MethodName = invocation.Method.Name,
                 Arguments = invocation.Arguments,
-                ArgumentsTypeNames = GetMethodParametersTypeNames(invocation.Method)
+                ArgumentsTypes = GetMethodParametersTypeNames(invocation.Method)
             };
 
             var requestJson = MessageSerializer.SerializeMessage(procedureInvocation);
@@ -63,9 +63,9 @@ namespace Minx.ZRpcNet
             }
         }
 
-        private static string[] GetMethodParametersTypeNames(MethodInfo method)
+        private static TypeLocator[] GetMethodParametersTypeNames(MethodInfo method)
         {
-            return method.GetParameters().Select(p => p.ParameterType.FullName).ToArray();
+            return method.GetParameters().Select(p => p.ParameterType.GetTypeLocator()).ToArray();
         }
     }
 }
