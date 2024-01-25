@@ -1,13 +1,15 @@
-﻿namespace Minx.ZRpcNet
+﻿using Minx.ZRpcNet.Serialization;
+
+namespace Minx.ZRpcNet
 {
     public class InvocationMessage
     {
-        public string TypeName { get; set; }
+        public TypeLocator Type { get; set; }
 
         public string MethodName { get; set; }
 
         public object[] Arguments { get; set; }
 
-        public string[] ArgumentsTypeNames { get; set; }
+        public TypeLocator[] ArgumentsTypes { get; set; }
     }
 }
