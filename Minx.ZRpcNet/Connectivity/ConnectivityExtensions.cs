@@ -15,7 +15,7 @@ namespace Minx.ZRpcNet.Connectivity
 
         public static ZRpcClient UseConnectivityService(this ZRpcClient client, Action<ConnectivityStateMonitor> monitorCallback)
         {
-            client.Options.Timeout = TimeSpan.FromSeconds(5);
+            client.Options.SetTimeout(typeof(IConnectivityService), TimeSpan.FromSeconds(5));
 
             monitorCallback?.Invoke(new ConnectivityStateMonitor(client, TimeSpan.FromSeconds(5)));
 

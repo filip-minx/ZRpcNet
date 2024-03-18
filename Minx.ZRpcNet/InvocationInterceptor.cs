@@ -47,7 +47,7 @@ namespace Minx.ZRpcNet
             {
                 requestSocket.SendFrame(requestJson);
 
-                if (!requestSocket.TryReceiveFrameString(options.Timeout, out var responseJson))
+                if (!requestSocket.TryReceiveFrameString(options.GetTimeout(interceptedType), out var responseJson))
                 {
                     throw new TimeoutException();
                 }
