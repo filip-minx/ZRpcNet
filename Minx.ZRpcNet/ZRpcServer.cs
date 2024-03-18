@@ -38,9 +38,19 @@ namespace Minx.ZRpcNet
         public void RegisterService<TInterface, TImplementation>(TImplementation implementation)
             where TImplementation : class, TInterface
         {
-            services.Add(typeof(TInterface).FullName, implementation);
+            services[typeof(TInterface).FullName] = implementation;
 
             EventInterceptor.CreateForAllEvents(typeof(TInterface), implementation, SendEvent);
+        }
+
+        public void UnregisterService<TInterface>()
+        {
+            services.Remove(typeof(TInterface).FullName);
+        }
+
+        public bool IsServiceRegistered<TInterface>()
+        {
+            return services.ContainsKey(typeof(TInterface).FullName);
         }
 
         private void HandleProcedureInvocationRequest(object sender, NetMQSocketEventArgs e)
