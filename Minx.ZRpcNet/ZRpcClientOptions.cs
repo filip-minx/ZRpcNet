@@ -4,7 +4,7 @@ namespace Minx.ZRpcNet
 {
     public class ZRpcClientOptions
     {
-        public static ZRpcClientOptions Default = new ZRpcClientOptions()
+        public static ZRpcClientOptions Default => new ZRpcClientOptions()
         {
             Timeout = System.Threading.Timeout.InfiniteTimeSpan
         };
