@@ -17,13 +17,17 @@ namespace Minx.ZRpcNet
 
         private NetMQPoller poller;
 
-        private ResponseSocket responseSocket;
-        private PublisherSocket publisherSocket;
+        internal ResponseSocket responseSocket;
+        internal PublisherSocket publisherSocket;
+
+        public NetMQCertificate ServerPair { get; private set; }
 
         public ZRpcServer(string address, int responsePort = DefaultRequestPort, int eventPort = DefaultEventPort)
         {
             responseSocket = new ResponseSocket($"@tcp://{address}:{responsePort}");
             publisherSocket = new PublisherSocket($"@tcp://{address}:{eventPort}");
+
+            ServerPair = new NetMQCertificate();
 
             responseSocket.ReceiveReady += HandleProcedureInvocationRequest;
 
