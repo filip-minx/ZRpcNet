@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetMQ;
+using System;
 
 namespace Minx.ZRpcNet
 {
@@ -10,5 +11,7 @@ namespace Minx.ZRpcNet
         };
 
         public TimeSpan Timeout { get; set; }
+
+        public byte[] CurveServerPublicKey { get; set; }
     }
 }

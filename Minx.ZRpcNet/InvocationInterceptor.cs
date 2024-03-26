@@ -45,6 +45,8 @@ namespace Minx.ZRpcNet
 
             using (var requestSocket = new RequestSocket(requestConnectionString))
             {
+                TryConfigureEncryption(requestSocket, options);
+
                 requestSocket.SendFrame(requestJson);
 
                 if (!requestSocket.TryReceiveFrameString(options.Timeout, out var responseJson))
@@ -66,6 +68,16 @@ namespace Minx.ZRpcNet
         private static TypeLocator[] GetMethodParametersTypeNames(MethodInfo method)
         {
             return method.GetParameters().Select(p => p.ParameterType.GetTypeLocator()).ToArray();
+        }
+
+        private void TryConfigureEncryption(RequestSocket requestSocket, ZRpcClientOptions options)
+        {
+            if (options.CurveServerPublicKey != null)
+            {
+                var clientPair = new NetMQCertificate();
+                requestSocket.Options.CurveServerKey = options.CurveServerPublicKey;
+                requestSocket.Options.CurveCertificate = clientPair;
+            }
         }
     }
 }

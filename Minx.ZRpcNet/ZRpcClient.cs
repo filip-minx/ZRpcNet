@@ -11,16 +11,15 @@ namespace Minx.ZRpcNet
     public class ZRpcClient : IZRpcClient, IDisposable
     {
         private readonly Dictionary<string, object> targetInstances = new Dictionary<string, object>();
-
         private static ProxyGenerator ProxyGenerator = new ProxyGenerator();
 
         private string requestConnectionString;
         private string eventConnectionString;
 
-        private SubscriberSocket subscriberSocket;
+        internal SubscriberSocket subscriberSocket;
         private NetMQPoller poller;
 
-        public ZRpcClientOptions Options { get; set; } = ZRpcClientOptions.Default;
+        public ZRpcClientOptions Options { get; } = ZRpcClientOptions.Default;
 
         public ZRpcClient(string address, int requestPort = ZRpcServer.DefaultRequestPort, int eventPort = ZRpcServer.DefaultEventPort)
         {
