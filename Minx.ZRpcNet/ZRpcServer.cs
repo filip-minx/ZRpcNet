@@ -19,6 +19,7 @@ namespace Minx.ZRpcNet
 
         internal ResponseSocket responseSocket;
         internal PublisherSocket publisherSocket;
+        internal NetMQQueue<string> messageQueue;
 
         public NetMQCertificate ServerPair { get; private set; }
 
@@ -26,14 +27,18 @@ namespace Minx.ZRpcNet
         {
             responseSocket = new ResponseSocket($"@tcp://{address}:{responsePort}");
             publisherSocket = new PublisherSocket($"@tcp://{address}:{eventPort}");
+            messageQueue = new NetMQQueue<string>();
 
             ServerPair = new NetMQCertificate();
 
             responseSocket.ReceiveReady += HandleProcedureInvocationRequest;
+            messageQueue.ReceiveReady += HandleMessageReady;
+
 
             poller = new NetMQPoller()
             {
-                responseSocket
+                responseSocket,
+                messageQueue
             };
 
             poller.RunAsync();
@@ -68,6 +73,14 @@ namespace Minx.ZRpcNet
             var resultJson = MessageSerializer.SerializeMessage(result);
 
             e.Socket.SendFrame(resultJson);
+        }
+
+        private void HandleMessageReady(object sender, NetMQQueueEventArgs<string> e)
+        {
+            while (e.Queue.TryDequeue(out string message, TimeSpan.Zero))
+            {
+                publisherSocket.SendFrame(message);
+            }
         }
 
         private InvocationResult Invoke(InvocationMessage invocation)
@@ -117,8 +130,7 @@ namespace Minx.ZRpcNet
             };
 
             var eventArgsJson = MessageSerializer.SerializeMessage(eventData);
-
-            publisherSocket.SendFrame(eventArgsJson);
+            messageQueue.Enqueue(eventArgsJson);
         }
 
         public void Dispose()
@@ -131,6 +143,9 @@ namespace Minx.ZRpcNet
 
             publisherSocket?.Dispose();
             publisherSocket = null;
+
+            messageQueue?.Dispose();
+            messageQueue = null;
         }
     }
 }
