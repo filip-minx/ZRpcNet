@@ -34,7 +34,6 @@ namespace Minx.ZRpcNet
             responseSocket.ReceiveReady += HandleProcedureInvocationRequest;
             messageQueue.ReceiveReady += HandleMessageReady;
 
-
             poller = new NetMQPoller()
             {
                 responseSocket,
