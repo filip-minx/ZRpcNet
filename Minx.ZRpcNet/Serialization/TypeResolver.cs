@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Minx.ZRpcNet.Serialization
 {
     public static class TypeResolver
     {
-        private static readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
+        private static readonly ConcurrentDictionary<string, Type> typeCache = new ConcurrentDictionary<string, Type>();
 
         public static Type GetTypeInAllAssemblies(string typeName, string hintAssemblyName)
         {
