@@ -3,15 +3,15 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0;net48</TargetFrameworks>
     <PackageId>Minx.ZRpcNet</PackageId>
-    <Version>1.8.2</Version>
+    <Version>1.8.3</Version>
     <Authors>Filip Minx</Authors>
     <Company>Minx</Company>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
-    <PackageReference Include="NetMQ" Version="4.0.1.6" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NetMQ" Version="4.0.1.13" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>
