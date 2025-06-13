@@ -88,7 +88,7 @@ namespace Minx.ZRpcNet
             {
                 return new InvocationResult()
                 {
-                    Exception = new ZRpcServiceNotRegisteredException($"Service '{invocation.Type}' is not registered.")
+                    Exception = new ZRpcServiceNotRegisteredException($"Service '{invocation.Type.TypeName}' is not registered.")
                 };
             }
 
