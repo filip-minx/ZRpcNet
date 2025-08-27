@@ -20,6 +20,7 @@ namespace Minx.ZRpcNet
             this.requestConnectionString = requestConnectionString;
             this.options = options;
         }
+
         private bool IsEventAccessor(MethodInfo method)
         {
             return method.IsSpecialName && (method.Name.StartsWith("add_") || method.Name.StartsWith("remove_"));
@@ -31,6 +32,11 @@ namespace Minx.ZRpcNet
             {
                 invocation.Proceed();
                 return;
+            }
+
+            if (options.DisabledServices.TryGetValue(interceptedType.FullName, out var disabled) && disabled)
+            {
+                throw new InvalidOperationException($"Interceptor of the type \"{interceptedType.Name}\" is disabled.");
             }
 
             var procedureInvocation = new InvocationMessage
