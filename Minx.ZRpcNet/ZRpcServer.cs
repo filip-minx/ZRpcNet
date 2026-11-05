@@ -2,7 +2,7 @@
 using NetMQ;
 using NetMQ.Sockets;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 
@@ -13,7 +13,7 @@ namespace Minx.ZRpcNet
         public const int DefaultRequestPort = 28555;
         public const int DefaultEventPort = 28556;
 
-        private readonly Dictionary<string, object> services = new Dictionary<string, object>();
+        private readonly ConcurrentDictionary<string, object> services = new ConcurrentDictionary<string, object>();
 
         private NetMQPoller poller;
 
@@ -53,7 +53,7 @@ namespace Minx.ZRpcNet
 
         public void UnregisterService<TInterface>()
         {
-            services.Remove(typeof(TInterface).FullName);
+            services.TryRemove(typeof(TInterface).FullName, out _);
         }
 
         public bool IsServiceRegistered<TInterface>()

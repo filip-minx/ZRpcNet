@@ -3,14 +3,14 @@ using Minx.ZRpcNet.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace Minx.ZRpcNet
 {
     public class ZRpcClient : IZRpcClient, IDisposable
     {
-        private readonly Dictionary<string, object> targetInstances = new Dictionary<string, object>();
+        private readonly ConcurrentDictionary<string, object> targetInstances = new ConcurrentDictionary<string, object>();
         private static ProxyGenerator ProxyGenerator = new ProxyGenerator();
 
         private string requestConnectionString;
@@ -46,7 +46,10 @@ namespace Minx.ZRpcNet
 
             var proxy = (T)ProxyGenerator.CreateInterfaceProxyWithTarget(typeof(T), target, interceptor);
 
-            targetInstances.Add(typeof(T).FullName, target);
+            if (!targetInstances.TryAdd(typeof(T).FullName, target))
+            {
+                throw new ArgumentException($"Service '{typeof(T).FullName}' has already been requested from this client.");
+            }
 
             return proxy;
         }
@@ -57,7 +60,10 @@ namespace Minx.ZRpcNet
 
             var eventData = MessageSerializer.DeserializeMessage<EventMessage>(eventJson);
 
-            var target = targetInstances[eventData.Type.TypeName];
+            if (!targetInstances.TryGetValue(eventData.Type.TypeName, out var target))
+            {
+                return;
+            }
 
             InvokeEventOnTarget(target, eventData.EventName, eventData.EventArgs);
         }
