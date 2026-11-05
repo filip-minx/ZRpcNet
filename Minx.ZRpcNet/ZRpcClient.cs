@@ -65,6 +65,11 @@ namespace Minx.ZRpcNet
                 return;
             }
 
+            if (Options.DisabledServices.TryGetValue(eventData.Type.TypeName, out var disabled) && disabled)
+            {
+                return;
+            }
+
             InvokeEventOnTarget(target, eventData.EventName, eventData.EventArgs);
         }
 
